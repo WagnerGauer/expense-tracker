@@ -16,14 +16,40 @@ const dummyTransactions = [ { id: 1, text: 'Flower', amount: -20},
 
 let transactions = dummyTransactions;
 
-form.addEventListener('submit', (e) => {
-    console.log(e)
-})
+// Add transaction 
 
+function addTransaction(e) {
+    e.preventDefault();
+
+    if(text.value.trim() === '' || amount.value.trim() === '') {
+        alert("Please add a text and amount")
+    } else {
+        const textInside = text.value
+        const amountInside = amount.value
+        const transaction = {
+            id: generateID(), 
+            text: textInside,
+            amount: parseFloat(amountInside)
+        }
+        transactions.push(transaction);
+        
+        addTransactionDOM(transaction);
+
+        updateValues();
+
+        text.value = '';
+        amount.value = '';
+    }
+}
+
+// Generate random ID 
+function generateID() {
+    return Math.floor(Math.random() * 1000000);
+}
 
 
 // ADD TRANSACTION TO DOM 
-function addTransationDOM(transaction) {
+function addTransactionDOM(transaction) {
     // console.log(transaction)
     // Get sign 
     const sign = transaction.amount < 0 ? '-' : '+';
@@ -35,7 +61,7 @@ function addTransationDOM(transaction) {
 
     item.innerHTML = `
     ${transaction.text} <span>${sign}${Math.abs(transaction.amount)}
-    </span> <button class="delete-btn">x</button>   
+    </span> <button class="delete-btn" onclick="removeTransaction(${transaction.id})">x</button>   
     `;
 
     list.appendChild(item);
@@ -47,6 +73,9 @@ function updateValues() {
     const amounts = transactions.map(transaction => 
         transaction.amount
     )
+
+    console.log(amounts)
+    
         const total = amounts.reduce((acumulator, item) => (acumulator += item), 0)
         .toFixed(2);
 
@@ -62,11 +91,18 @@ function updateValues() {
         .reduce((acumulator, item) => (acumulator += item), 0) * -1)
         .toFixed(2);
 
-        console.log(expense)
-
         balance.innerText = `$${total}`;
         moneyPlus.innerText = `$${income}`;
         moneyMinus.innerText = `$${expense}`;
+    
+}
+
+// Remove transaction by id function 
+
+function removeTransaction(id) {
+    transactions = transactions.filter(transaction => transaction.id !==id);
+
+    init()
 }
 
 // Init app 
@@ -74,8 +110,13 @@ function updateValues() {
 function init() {
     list.innerHTML = ''
 
-    transactions.forEach(addTransationDOM);
+    transactions.forEach(addTransactionDOM);
     updateValues();
 }
 
 init();
+
+form.addEventListener('submit', (e) => {
+    addTransaction(e);
+})
+
